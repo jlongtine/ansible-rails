@@ -119,11 +119,11 @@ Also contains a role which deploys just like capistrano/ mina.
           compile_assets: yes
 
           symlinks:
-            - vendor/bundle
-            - public/assets
-            - log
-            - .env
-            - config/database.yml
+            - { src: "{{ shared_path }}/vendor/bundle", dest: "{{ build_path }}/vendor/bundle" }
+            - { src: "{{ shared_path }}/public/assets", dest: "{{ build_path }}/public/assets" }
+            - { src: "{{ shared_path }}/log", dest: "{{ build_path }}/log" }
+            - { src: "{{ shared_path }}/.env", dest: "{{ build_path }}/.env" }
+            - { src: "{{ shared_path }}/config/database.yml", dest: "{{ build_path }}/config/database.yml" }
 
 
 ## requirements
