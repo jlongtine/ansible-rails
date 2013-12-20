@@ -32,7 +32,7 @@
   template: src=env.js dest={{ shared_path }}/.env owner={{ user }} group={{ user }} mode=0600
 
 - name: symlink shared files
-  file: src={{ shared_path }}/{{ item }} dest={{ build_path }}/{{ item }} state=link force=yes recurse=yes
+  file: src={{ item.src }} dest={{ item.dest }} state=link force=yes recurse=yes
   with_items: $symlinks
 
 - name: run Bundle
