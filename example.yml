@@ -27,3 +27,8 @@
         - log
         - .env
         - config/database.yml
+
+      directories:
+        - "{{ shared_path }}/config"
+
+      templates: []
