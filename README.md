@@ -125,6 +125,12 @@ Also contains a role which deploys just like capistrano/ mina.
             - { src: "{{ shared_path }}/.env", dest: "{{ build_path }}/.env" }
             - { src: "{{ shared_path }}/config/database.yml", dest: "{{ build_path }}/config/database.yml" }
 
+          directories:
+            - "{{ shared_path }}/config"
+
+          templates:
+            - { src: "templates/env.js", dest: "{{ shared_path }}/.env" }
+
 
 ## requirements
 
