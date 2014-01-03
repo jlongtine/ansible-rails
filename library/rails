@@ -112,7 +112,7 @@ def migrate(module):
         if os.path.exists(current_db_schema):
             if diff(current_db_schema, next_db_schema) == 0:
                 print("DB schema unchanged. Skipping")
-                return
+                return False
 
     os.chdir(module.params['path'])
 
@@ -130,6 +130,7 @@ def migrate(module):
     cmd.append('db:migrate')
 
     module.run_command(cmd, check_rc=True)
+    return True
 
 def precompile_assets(module):
     if module.check_mode:
@@ -153,7 +154,7 @@ def precompile_assets(module):
                     module.params['current'] + '/public/assets',
                     module.params['path'] + '/public/assets'
                 )
-                return
+                return False
 
     cmd = []
     if module.params['rails_env']:
@@ -170,6 +171,7 @@ def precompile_assets(module):
     cmd.append('assets:precompile')
 
     module.run_command(cmd, check_rc=True)
+    return True
 
 def main():
     module = AnsibleModule(
@@ -188,11 +190,11 @@ def main():
     changed = False
     if module.params['migrate']:
         # TODO wurden migration ausgeführt
-        migrate(module)
+        changed = changed or migrate(module)
 
     if module.params['assets']:
         # TODO wurden assets erzeugt
-        precompile_assets(module)
+        changed = changed or precompile_assets(module)
 
     result = {}
     result['path'] = module.params['path']
