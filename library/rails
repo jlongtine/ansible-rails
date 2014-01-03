@@ -40,6 +40,11 @@ options:
     description:
       - precompile the assets
     required: no
+  force:
+    description:
+      - force command in question
+    required: no
+    default: no
 '''
 
 EXAMPLES = '''
@@ -105,11 +110,13 @@ def migrate(module):
     if module.check_mode:
         return
 
+    force = module.params.get('force', False)
+
     if module.params['current']:
         current_db_schema = module.params['current'] + '/db/schema.rb'
         next_db_schema = module.params['path'] + '/db/schema.rb'
 
-        if os.path.exists(current_db_schema):
+        if os.path.exists(current_db_schema) and not force:
             if diff(current_db_schema, next_db_schema) == 0:
                 print("DB schema unchanged. Skipping")
                 return False
@@ -138,8 +145,10 @@ def precompile_assets(module):
 
     os.chdir(module.params['path'])
 
+    force = module.params.get('force', False)
+
     if module.params['current']:
-        if os.path.exists(module.params['current'] + '/public/assets'):
+        if os.path.exists(module.params['current'] + '/public/assets') and not force:
             total_diff = diff(
                     module.params['current'] + '/app/assets/',
                     module.params['path'] + '/app/assets/'
@@ -182,6 +191,7 @@ def main():
             bundled        = dict(required=False, type='bool'),
             migrate        = dict(required=False, type='bool'),
             assets         = dict(required=False, type='bool'),
+            force          = dict(required=False, type='bool'),
         ),
         supports_check_mode = True,
         mutually_exclusive = [ ],
@@ -189,11 +199,9 @@ def main():
 
     changed = False
     if module.params['migrate']:
-        # TODO wurden migration ausgeführt
         changed = changed or migrate(module)
 
     if module.params['assets']:
-        # TODO wurden assets erzeugt
         changed = changed or precompile_assets(module)
 
     result = {}
