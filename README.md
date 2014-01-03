@@ -36,6 +36,11 @@ Ansible library to work with bundler and rails related commands.
       description:
         - precompile the assets
       required: no
+    - force:
+      description:
+        - force migration or asset compilation
+      required: no
+      default: false
 
 **examples**
 
