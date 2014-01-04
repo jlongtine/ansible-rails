@@ -48,8 +48,10 @@ options:
 '''
 
 EXAMPLES = '''
-# Installs application dependencies
+# migrate the database
 rails: path=/path rails_env=staging current=/current migrate=yes bundled=yes
+
+# compile the assets
 rails: path=/path rails_env=staging current=/current assets=yes bundled=yes
 '''
 
@@ -59,6 +61,7 @@ import sys
 import subprocess
 
 def load_env():
+    """load the environment from a users bashrc. Usefull to pick up custom $PATH"""
     home_path = os.getenv('HOME')
     env_command = ['/bin/bash', '-c', 'source ' + home_path + '/.bashrc && env']
 
@@ -73,37 +76,37 @@ def load_env():
     return dict(env)
 
 def get_bundle_path(module):
+    """locate the bundle binary"""
     extra_paths = []
 
-    gem_home = load_env()['GEM_HOME']
+    gem_home = load_env().get('GEM_HOME', None)
     if gem_home:
         extra_paths.append(gem_home + '/bin')
 
     return module.get_bin_path('bundle', True, extra_paths)
 
 def get_rake_path(module):
+    """locate the rake binary"""
     extra_paths = []
 
-    gem_home = load_env()['GEM_HOME']
+    gem_home = load_env().get('GEM_HOME', None)
     if gem_home:
         extra_paths.append(gem_home + '/bin')
 
     return module.get_bin_path('rake', True, extra_paths)
 
 def diff(path_a, path_b):
-    diff_cmd = ['diff', '-r', path_a, path_b]
-    proc = subprocess.Popen(diff_cmd, stdout = subprocess.PIPE)
-
-    for line in proc.stdout:
-        return 1
-
-    proc.communicate()
-
-    return 0
+    """returns False if both paths are the same, otherwise True"""
+    try:
+      check_output(['diff', '-r', '-q', path_a, path_b])
+      return False
+    except subprocess.CalledProcessError, error:
+      return True
 
 def copy(from_path, to_path):
-    diff_cmd = ['cp', '-R', from_path, to_path]
-    proc = subprocess.Popen(diff_cmd, stdout = subprocess.PIPE)
+    """move files or directories from_path to to_path"""
+    copy_cmd = ['cp', '-R', from_path, to_path]
+    proc = subprocess.Popen(copy_cmd, stdout = subprocess.PIPE)
     proc.communicate()
 
 def migrate(module):
@@ -117,7 +120,7 @@ def migrate(module):
         next_db_schema = module.params['path'] + '/db/schema.rb'
 
         if os.path.exists(current_db_schema) and not force:
-            if diff(current_db_schema, next_db_schema) == 0:
+            if not diff(current_db_schema, next_db_schema):
                 print("DB schema unchanged. Skipping")
                 return False
 
@@ -149,15 +152,18 @@ def precompile_assets(module):
 
     if module.params['current']:
         if os.path.exists(module.params['current'] + '/public/assets') and not force:
-            total_diff = diff(
+            changed = diff(
                     module.params['current'] + '/app/assets/',
                     module.params['path'] + '/app/assets/'
-                ) + diff(
+                ) or diff(
                     module.params['current'] + '/vendor/assets/',
                     module.params['path'] + '/vendor/assets/'
+                ) or diff(
+                    module.params['current'] + '/Gemfile.lock',
+                    module.params['path'] + '/Gemfile.lock'
                 )
 
-            if total_diff == 0:
+            if not changed:
                 print("Assets unchanged. Skipping")
                 copy(
                     module.params['current'] + '/public/assets',
@@ -205,7 +211,6 @@ def main():
         changed = changed or precompile_assets(module)
 
     result = {}
-    result['path'] = module.params['path']
     result['changed'] = changed
 
     module.exit_json(**result)
