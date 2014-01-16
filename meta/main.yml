@@ -1,6 +1,7 @@
 ---
 galaxy_info:
   author: "Raphael Randschau"
+  description: "a wrapper around rake und rails tasks necessary for rails apps"
   license: MIT
   min_ansible_version: 1.4
   platforms:
