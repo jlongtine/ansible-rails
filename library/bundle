@@ -75,7 +75,7 @@ def get_bundle_path(module):
 
 def install(module):
     if module.check_mode:
-        return
+        return False
 
     cmd = [ get_bundle_path(module) ]
 
@@ -89,7 +89,22 @@ def install(module):
         cmd.append('--binstubs=bin/')
     if module.params['deployment']:
         cmd.append('--deployment')
-    module.run_command(cmd, check_rc=True)
+
+    (rc, stdout, stderr) = module.run_command(cmd, check_rc=True)
+
+    installed = True
+    try:
+        stdout.index("Installing")
+    except ValueError:
+        installed = False
+
+    updated = True
+    try:
+        stdout.index("Updating")
+    except ValueError:
+        updated = False
+
+    return updated or installed
 
 def main():
     module = AnsibleModule(
@@ -104,8 +119,7 @@ def main():
         mutually_exclusive = [ ],
     )
 
-    changed = False
-    install(module)
+    changed = install(module)
 
     result = {}
     result['path'] = module.params['path']
