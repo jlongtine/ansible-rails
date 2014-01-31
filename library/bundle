@@ -46,6 +46,8 @@ import os
 import sys
 import subprocess
 
+from ansible.module_utils.basic import *
+
 def load_env():
     home_path = os.getenv('HOME')
     env_command = ['/bin/bash', '-c', 'source ' + home_path + '/.bashrc && env']
@@ -68,10 +70,30 @@ def get_bundle_path(module):
 
         gem_home = load_env()['GEM_HOME']
         if gem_home:
-            print('with GEM_HOME')
             extra_paths.append(gem_home + '/bin')
 
         return module.get_bin_path('bundle', True, extra_paths)
+
+def gems_were_changed(stdout):
+    installed = True
+    try:
+        stdout.index("Installing")
+    except ValueError:
+        installed = False
+
+    updated = True
+    try:
+        stdout.index("Updating")
+    except ValueError:
+        updated = False
+
+    upgrade = True
+    try:
+        stdout.index("upgrade")
+    except ValueError:
+        upgrade = False
+
+    return updated or installed or upgrade
 
 def install(module):
     if module.check_mode:
@@ -92,19 +114,7 @@ def install(module):
 
     (rc, stdout, stderr) = module.run_command(cmd, check_rc=True)
 
-    installed = True
-    try:
-        stdout.index("Installing")
-    except ValueError:
-        installed = False
-
-    updated = True
-    try:
-        stdout.index("Updating")
-    except ValueError:
-        updated = False
-
-    return updated or installed
+    return gems_were_changed(stdout)
 
 def main():
     module = AnsibleModule(
@@ -130,4 +140,5 @@ def main():
 
 # include magic from lib/ansible/module_common.py
 #<<INCLUDE_ANSIBLE_MODULE_COMMON>>
-main()
+if __name__ == '__main__':
+    main()
