@@ -30,6 +30,11 @@ class TestBundle(unittest.TestCase):
     Using i18n (0.6.9)"""
     assert gems_were_changed(updated_output) == True
 
+    old_updated_output = """
+    Updating rails to 3.2.16
+    Using i18n (0.6.9)"""
+    assert gems_were_changed(old_updated_output) == True
+
   def test_install_with_new_gems(self):
     install_output = """
     Installing i18n (0.6.9)"""

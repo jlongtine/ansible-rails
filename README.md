@@ -97,3 +97,10 @@ Ansible library to work with bundler and rails related commands.
 
     # use a specific bundler binary
     bundle: path=shared/vendor executable=$HOME/.rvm/wrappers/bundle
+
+
+### Tests
+
+To execute tests for the `bundle` command run the following in the project directory:
+
+    PYTHONPATH=$PWD/library python test/bundle_test.py
