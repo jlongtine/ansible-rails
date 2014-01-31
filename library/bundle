@@ -48,73 +48,78 @@ import subprocess
 
 from ansible.module_utils.basic import *
 
-def load_env():
-    home_path = os.getenv('HOME')
-    env_command = ['/bin/bash', '-c', 'source ' + home_path + '/.bashrc && env']
+class BundlerModule(object):
+    module = None
+    def __init__(self, module):
+        self.module = module
 
-    proc = subprocess.Popen(env_command, stdout = subprocess.PIPE)
-    env = {}
-    for line in proc.stdout:
-      (key, _, value) = line.decode("utf-8").strip().partition("=")
-      env[key] = value
+    def load_env(self):
+        home_path = os.getenv('HOME')
+        env_command = ['/bin/bash', '-c', 'source ' + home_path + '/.bashrc && env']
 
-    proc.communicate()
+        proc = subprocess.Popen(env_command, stdout = subprocess.PIPE)
+        env = {}
+        for line in proc.stdout:
+          (key, _, value) = line.decode("utf-8").strip().partition("=")
+          env[key] = value
 
-    return dict(env)
+        proc.communicate()
 
-def get_bundle_path(module):
-    if module.params['executable']:
-        return module.params['executable']
-    else:
-        extra_paths = []
+        return dict(env)
 
-        gem_home = load_env()['GEM_HOME']
-        if gem_home:
-            extra_paths.append(gem_home + '/bin')
+    def get_bundle_path(self):
+        if self.module.params['executable']:
+            return self.module.params['executable']
+        else:
+            extra_paths = []
 
-        return module.get_bin_path('bundle', True, extra_paths)
+            gem_home = self.load_env()['GEM_HOME']
+            if gem_home:
+                extra_paths.append(gem_home + '/bin')
 
-def gems_were_changed(stdout):
-    installed = True
-    try:
-        stdout.index("Installing")
-    except ValueError:
-        installed = False
+            return self.module.get_bin_path('bundle', True, extra_paths)
 
-    updated = True
-    try:
-        stdout.index("Updating")
-    except ValueError:
-        updated = False
+    def gems_were_changed(self, stdout):
+        installed = True
+        try:
+            stdout.index("Installing")
+        except ValueError:
+            installed = False
 
-    upgrade = True
-    try:
-        stdout.index("upgrade")
-    except ValueError:
-        upgrade = False
+        updated = True
+        try:
+            stdout.index("Updating")
+        except ValueError:
+            updated = False
 
-    return updated or installed or upgrade
+        upgrade = True
+        try:
+            stdout.index("upgrade")
+        except ValueError:
+            upgrade = False
 
-def install(module):
-    if module.check_mode:
-        return False
+        return updated or installed or upgrade
 
-    cmd = [ get_bundle_path(module) ]
+    def run_bundle(self):
+        if self.module.check_mode:
+            return False
 
-    cmd.append('install')
-    cmd.append('--without=deployment:test')
-    if module.params['path']:
-        cmd.append('--path=' + module.params['path'])
-    if module.params['gemfile']:
-        cmd.append('--gemfile=' + module.params['gemfile'])
-    if module.params['binstubs']:
-        cmd.append('--binstubs=bin/')
-    if module.params['deployment']:
-        cmd.append('--deployment')
+        cmd = [ self.get_bundle_path() ]
 
-    (rc, stdout, stderr) = module.run_command(cmd, check_rc=True)
+        cmd.append('install')
+        cmd.append('--without=deployment:test')
+        if self.module.params.get('path'):
+            cmd.append('--path=' + self.module.params.get('path'))
+        if self.module.params.get('gemfile'):
+            cmd.append('--gemfile=' + self.module.params.get('gemfile'))
+        if self.module.params.get('binstubs'):
+            cmd.append('--binstubs=bin/')
+        if self.module.params.get('deployment'):
+            cmd.append('--deployment')
 
-    return gems_were_changed(stdout)
+        (rc, stdout, stderr) = self.module.run_command(cmd, check_rc=True)
+
+        return self.gems_were_changed(stdout)
 
 def main():
     module = AnsibleModule(
@@ -129,7 +134,8 @@ def main():
         mutually_exclusive = [ ],
     )
 
-    changed = install(module)
+    bundler = BundlerModule(module)
+    changed = bundler.run_bundle()
 
     result = {}
     result['path'] = module.params['path']
