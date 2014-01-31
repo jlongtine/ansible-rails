@@ -24,12 +24,46 @@ class TestBundle(unittest.TestCase):
   def test_run_bundler_with_path_option(self):
     module = FakeAnsibleModule()
     module.run_command = Mock(return_value=(0, "", ""))
+    module.params = { 'path': '/path/to/app'}
 
     bundler = BundlerModule(module)
     bundler.get_bundle_path = Mock(return_value='/bin/bandler')
     bundler.run_bundle()
 
-    module.run_command.assert_called_with(['/bin/bandler', 'install', '--without=deployment:test'], check_rc=True)
+    module.run_command.assert_called_with(['/bin/bandler', 'install', '--without=deployment:test', '--path=/path/to/app'], check_rc=True)
+
+  def test_run_bundler_with_gemfile_option(self):
+    module = FakeAnsibleModule()
+    module.run_command = Mock(return_value=(0, "", ""))
+    module.params = { 'gemfile': '/path/to/Gemfile' }
+
+    bundler = BundlerModule(module)
+    bundler.get_bundle_path = Mock(return_value='/bin/bandler')
+    bundler.run_bundle()
+
+    module.run_command.assert_called_with(['/bin/bandler', 'install', '--without=deployment:test', '--gemfile=/path/to/Gemfile'], check_rc=True)
+
+  def test_run_bundler_with_binstubs_option(self):
+    module = FakeAnsibleModule()
+    module.run_command = Mock(return_value=(0, "", ""))
+    module.params = { 'binstubs': True }
+
+    bundler = BundlerModule(module)
+    bundler.get_bundle_path = Mock(return_value='/bin/bandler')
+    bundler.run_bundle()
+
+    module.run_command.assert_called_with(['/bin/bandler', 'install', '--without=deployment:test', '--binstubs=bin/'], check_rc=True)
+
+  def test_run_bundler_with_deployment_option(self):
+    module = FakeAnsibleModule()
+    module.run_command = Mock(return_value=(0, "", ""))
+    module.params = { 'deployment': True }
+
+    bundler = BundlerModule(module)
+    bundler.get_bundle_path = Mock(return_value='/bin/bandler')
+    bundler.run_bundle()
+
+    module.run_command.assert_called_with(['/bin/bandler', 'install', '--without=deployment:test', '--deployment'], check_rc=True)
 
   """tests for resolving bundler binary. rely on AnsibleModule.get_bin_path
   when no executable is given
@@ -49,7 +83,7 @@ class TestBundle(unittest.TestCase):
     assert bundler.get_bundle_path() == '/bin/bandler'
 
 
-  """general tests to classify bundler output correctly."""
+  """gems_were_changed classifies bundler output correctly."""
   def test_install_without_changes(self):
     existing_output = """Using rake (10.1.1)
     Using i18n (0.6.9)"""
