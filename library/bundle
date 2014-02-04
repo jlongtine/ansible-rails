@@ -109,13 +109,13 @@ class BundlerModule(object):
 
         cmd.append('install')
         cmd.append('--without=deployment:test')
-        if self.module.params.get('path'):
+        if self.module.params.get('path', None):
             cmd.append('--path=' + self.module.params.get('path'))
-        if self.module.params.get('gemfile'):
+        if self.module.params.get('gemfile', None):
             cmd.append('--gemfile=' + self.module.params.get('gemfile'))
-        if self.module.params.get('binstubs'):
+        if self.module.params.get('binstubs', None):
             cmd.append('--binstubs=bin/')
-        if self.module.params.get('deployment'):
+        if self.module.params.get('deployment', None):
             cmd.append('--deployment')
 
         (rc, stdout, stderr) = self.module.run_command(cmd, check_rc=True)
