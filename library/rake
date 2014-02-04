@@ -45,6 +45,11 @@ options:
       - force command in question
     required: no
     default: no
+  command:
+    description:
+      - an arbitrary rake command to be executed
+    required: no
+    default: no
 '''
 
 EXAMPLES = '''
@@ -221,6 +226,7 @@ def main():
             migrate        = dict(required=False, type='bool'),
             assets         = dict(required=False, type='bool'),
             force          = dict(required=False, type='bool'),
+            command        = dict(required=False, type='str')
         ),
         supports_check_mode = True,
         mutually_exclusive = [ ],
@@ -229,11 +235,14 @@ def main():
     changed = False
 
     rake_module = RakeModule(module)
-    if module.params['migrate']:
+    if module.params.get('migrate', None):
         changed = changed or rake_module.migrate()
 
-    if module.params['assets']:
+    if module.params.get('assets', None):
         changed = changed or rake_module.precompile_assets()
+
+    if module.params.get('command', None):
+        changed = changed or rake_module.run_command(module.params.get('command'))
 
     result = {}
     result['changed'] = changed
