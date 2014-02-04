@@ -29,5 +29,14 @@ class TestBundle(unittest.TestCase):
 
     module.get_bin_path.assert_called_with('bundle', True, [])
 
+  def test_diff(self):
+    module = FakeAnsibleModule()
+    rake = BaseModule(module)
+
+    assert rake.diff('test/fixtures/current_db', 'test/fixtures/next_db') == False
+
+    assert rake.diff('test/fixtures/changed_db', 'test/fixtures/next_db') == True
+
+
 if __name__ == '__main__':
   unittest.main()

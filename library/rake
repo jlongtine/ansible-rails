@@ -69,6 +69,9 @@ class BaseModule(object):
     def load_env(self):
         """load the environment from a users bashrc. Usefull to pick up custom $PATH"""
         home_path = os.getenv('HOME')
+        if not os.path.exists(home_path + '/.bashrc'):
+            return {}
+
         env_command = ['/bin/bash', '-c', 'source ' + home_path + '/.bashrc && env']
 
         proc = subprocess.Popen(env_command, stdout = subprocess.PIPE)
