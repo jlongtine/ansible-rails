@@ -158,12 +158,11 @@ def main():
         mutually_exclusive = [ ],
     )
 
-    changed = False
-
     rake_module = RakeModule(module)
 
+    changed = False
     if module.params.get('command', None):
-        changed = changed or rake_module.run_command()
+        changed = changed or rake_module.run_command(module.params['command'])
 
     result = {}
     result['changed'] = changed
