@@ -28,14 +28,6 @@ Ansible library to work with bundler and rails related commands.
         - use `bundle exec rake` or `bundle exec rails` instead of `rake` and `rails`
       required: no
       default: no
-    - migrate:
-      description:
-        - migrate the database
-      required: no
-    - assets:
-      description:
-        - precompile the assets
-      required: no
     - force:
       description:
         - force migration or asset compilation
@@ -46,21 +38,34 @@ Ansible library to work with bundler and rails related commands.
         - run any rake command, really
       required: no
       default: false
+    - diff_paths:
+      descriptions:
+        - list of paths to check for differences using diff command
+      required: no
+      default: []
 
 **examples**
 
 
     # run rake db:migrate
-    rake: path=/path rails_env=staging current=/current migrate=yes
+    rake: path=/path rails_env=staging command="db:migrate"
+
+    # run rake db:migrate only of /current/db/schema.rb and /next/db/schema.rb are different
+    rake:
+      path: "/path"
+      rails_env: "staging"
+      command: "db:migrate"
+      diff_paths:
+        - { current: '/current/db/schema.rb', next: '/next/db/schema.rb' }
 
     # run bundle exec rake db:migrate
-    rake: path=/path rails_env=staging current=/current migrate=yes bundled=yes
+    rake: path=/path rails_env=staging command="db:migrate" bundled=yes
 
     # run bundle exec rake assets:precompile
-    rake: path=/path rails_env=staging current=/current assets=yes bundled=yes
+    rake: path=/path rails_env=staging command="assets:precompile" bundled=yes
 
     # run bundle exec rake my:custom:command
-    rake: path=/path rails_env=staging current=/current bundled=yes command="my:custom:command"
+    rake: path=/path rails_env=staging bundled=yes command="my:custom:command"
 
 ### Tests
 
