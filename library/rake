@@ -93,7 +93,7 @@ class BaseModule(object):
           check_output(['diff', '-r', '-q', path_a, path_b])
           return False
         except subprocess.CalledProcessError, error:
-          return True
+          return os.path.exists(path_a) or os.path.exists(path_b)
 
     def copy(self, from_path, to_path):
         """move files or directories from_path to to_path"""

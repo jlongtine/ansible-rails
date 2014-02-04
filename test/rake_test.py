@@ -37,7 +37,9 @@ class TestBase(unittest.TestCase):
 
     # missing_db folder does not exist
     assert rake.diff('test/fixtures/missing_db', 'test/fixtures/next_db') == True
-    assert rake.diff('test/fixtures/missing_db', 'test/fixtures/missing_db') == True
+
+    # if no path exists there's no diff
+    assert rake.diff('test/fixtures/missing_db', 'test/fixtures/missing_db') == False
 
 class TestRake(unittest.TestCase):
   def test_get_rake_path(self):
