@@ -19,10 +19,6 @@ options:
     description:
       - path which should cd'd into to run commands
     required: yes
-  current:
-    description:
-      - path of current version. used to decide if migrations and precompilations are necessary
-    required: no
   rails_env:
     description:
       - RAILS_ENV used by commands
@@ -32,14 +28,6 @@ options:
       - use `bundle exec rake` or `bundle exec rails` instead of `rake` and `rails`
     required: no
     default: no
-  migrate:
-    description:
-      - migrate the database
-    required: no
-  assets:
-    description:
-      - precompile the assets
-    required: no
   force:
     description:
       - force command in question
@@ -54,10 +42,10 @@ options:
 
 EXAMPLES = '''
 # migrate the database
-rails: path=/path rails_env=staging current=/current migrate=yes bundled=yes
+rails: path=/path rails_env=staging migrate=yes bundled=yes
 
 # compile the assets
-rails: path=/path rails_env=staging current=/current assets=yes bundled=yes
+rails: path=/path rails_env=staging assets=yes bundled=yes
 '''
 
 import re
@@ -110,7 +98,7 @@ class BaseModule(object):
     def copy(self, from_path, to_path):
         """move files or directories from_path to to_path"""
         copy_cmd = ['cp', '-R', from_path, to_path]
-        proc = subprocess.Popen(copy_cmd, stdout = subprocess.PIPE)
+        proc = subprocess.Popen(copy_cmd, stdout=subprocess.PIPE)
         proc.communicate()
 
 class RakeModule(BaseModule):
@@ -131,11 +119,20 @@ class RakeModule(BaseModule):
 
         os.chdir(self.module.params['path'])
 
-        cmd = []
-        if self.module.params['rails_env']:
-            os.environ['RAILS_ENV'] = self.module.params['rails_env']
+        force = self.module.params.get('force', False)
+        if not force:
+           has_diffs = False
+           for path in self.module.params.get('diff_paths', []):
+               has_diffs = has_diffs or self.diff(path['current'], path['next'])
 
-        if self.module.params['bundled']:
+           if not has_diffs:
+               return False
+
+        cmd = []
+        if self.module.params.get('rails_env', None):
+            os.environ['RAILS_ENV'] = self.module.params.get('rails_env')
+
+        if self.module.params.get('bundled', None):
             cmd.append(self.get_bundle_path())
             cmd.append('exec')
             cmd.append('rake')
@@ -147,86 +144,15 @@ class RakeModule(BaseModule):
         self.module.run_command(cmd, check_rc=True)
         return True
 
-    def migrate(self):
-        """run rake db:migrate when necessary"""
-        if self.module.check_mode:
-            return False
-
-        force = self.module.params.get('force', False)
-
-        if self.module.params['current'] and not force:
-            paths = [
-                {
-                    current: self.module.params['current'] + '/db/schema.rb',
-                    path: self.module.params['path'] + '/db/schema.rb'
-                }, {
-                    current: self.module.params['current'] + '/db/structure.sql',
-                    path: self.module.params['path'] + '/db/structure.sql'
-                }
-            ]
-
-            has_diffs = False
-            for path in paths:
-                if os.path.exists(path['current']):
-                    has_diffs = has_diffs or diff(path['current'], path['path'])
-
-            if not has_diffs:
-                print("DB schema unchanged. Skipping")
-                return False
-
-        self.run_command('db:migrate')
-        return True
-
-    def precompile_assets(self):
-        """run rake assets:precompile"""
-        if self.module.check_mode:
-            return False
-
-        os.chdir(self.module.params['path'])
-
-        force = self.module.params.get('force', False)
-
-        if self.module.params['current'] and not force:
-            if os.path.exists(self.module.params['current'] + '/public/assets'):
-                paths = [
-                    {
-                        current: self.module.params['current'] + '/app/assets/',
-                        path: self.module.params['path'] + '/app/assets/'
-                    }, {
-                        current: self.module.params['current'] + '/vendor/assets/',
-                        path: self.module.params['path'] + '/vendor/assets/'
-                    }, {
-                        current: self.module.params['current'] + '/Gemfile.lock',
-                        path: self.module.params['path'] + '/Gemfile.lock'
-                    }
-                ]
-
-                has_diffs = False
-                for path in paths:
-                    if os.path.exists(path['current']):
-                        has_diffs = has_diffs or diff(path['current'], path['path'])
-
-                if not has_diffs:
-                    copy(
-                        self.module.params['current'] + '/public/assets',
-                        self.module.params['path'] + '/public/assets'
-                    )
-                    return False
-
-        self.run_command('assets:precompile')
-        return True
-
 def main():
     module = AnsibleModule(
         argument_spec = dict(
+            command        = dict(required=True, type='str'),
             path           = dict(required=True, type='str'),
-            current        = dict(required=False, type='str'),
             rails_env      = dict(required=False, type='str'),
             bundled        = dict(required=False, type='bool'),
-            migrate        = dict(required=False, type='bool'),
-            assets         = dict(required=False, type='bool'),
             force          = dict(required=False, type='bool'),
-            command        = dict(required=False, type='str')
+            diff_paths     = dict(required=False, type='list')
         ),
         supports_check_mode = True,
         mutually_exclusive = [ ],
@@ -235,14 +161,9 @@ def main():
     changed = False
 
     rake_module = RakeModule(module)
-    if module.params.get('migrate', None):
-        changed = changed or rake_module.migrate()
-
-    if module.params.get('assets', None):
-        changed = changed or rake_module.precompile_assets()
 
     if module.params.get('command', None):
-        changed = changed or rake_module.run_command(module.params.get('command'))
+        changed = changed or rake_module.run_command()
 
     result = {}
     result['changed'] = changed
