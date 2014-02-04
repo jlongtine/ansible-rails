@@ -5,7 +5,6 @@ import os.path
 import sys
 
 import unittest
-
 from mock import Mock
 
 from ansible.module_utils.basic import AnsibleModule

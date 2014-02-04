@@ -2,7 +2,7 @@
 
 Ansible library to work with bundler and rails related commands.
 
-## example: rails command
+## example: rake command
 
 **available options**
 
@@ -41,22 +41,32 @@ Ansible library to work with bundler and rails related commands.
         - force migration or asset compilation
       required: no
       default: false
+    - command:
+      description:
+        - run any rake command, really
+      required: no
+      default: false
 
 **examples**
 
 
     # run rake db:migrate
-    rails: path=/path rails_env=staging current=/current migrate=yes
+    rake: path=/path rails_env=staging current=/current migrate=yes
 
     # run bundle exec rake db:migrate
-    rails: path=/path rails_env=staging current=/current migrate=yes bundled=yes
+    rake: path=/path rails_env=staging current=/current migrate=yes bundled=yes
 
     # run bundle exec rake assets:precompile
-    rails: path=/path rails_env=staging current=/current assets=yes bundled=yes
+    rake: path=/path rails_env=staging current=/current assets=yes bundled=yes
 
-#### TODO
+    # run bundle exec rake my:custom:command
+    rake: path=/path rails_env=staging current=/current bundled=yes command="my:custom:command"
 
-  - execute arbitrary rails/ rake commands
+### Tests
+
+To execute tests for the `rake` command run the following in the project directory:
+
+    PYTHONPATH=$PWD/library python test/rake_test.py
 
 ## example: bundle command
 

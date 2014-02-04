@@ -8,6 +8,7 @@ DOCUMENTATION = '''
 module: bundler
 short_description: Install Application Dependencies
 version_added: "1.0"
+author: Raphael Randschau
 options:
   executable:
     description:
