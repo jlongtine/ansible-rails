@@ -6,15 +6,20 @@ Ansible library to work with bundler and rails related commands.
 
 **available options**
 
+    - path:
+      description:
+        - path which should cd'd into to run commands
+      required: yes
+    - command:
+      description:
+        - an arbitrary rake command to be executed
+      required: yes
+      default: no
     - executable:
       description:
         - Bundler executable
       required: no
       default: $GEM_HOME/bin/bundle
-    - path:
-      description:
-        - path which should cd'd into to run commands
-      required: yes
     - rails_env:
       description:
         - RAILS_ENV used by commands
@@ -26,19 +31,9 @@ Ansible library to work with bundler and rails related commands.
       default: no
     - force:
       description:
-        - force migration or asset compilation
+        - force command in question
       required: no
-      default: false
-    - command:
-      description:
-        - run any rake command, really
-      required: no
-      default: false
-    - diff_paths:
-      descriptions:
-        - list of paths to check for differences using diff command
-      required: no
-      default: []
+      default: no
 
 **examples**
 

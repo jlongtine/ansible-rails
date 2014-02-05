@@ -10,15 +10,20 @@ short_description: Run rake commands
 version_added: "1.0"
 author: Raphael Randschau
 options:
+  path:
+    description:
+      - path which should cd'd into to run commands
+    required: yes
+  command:
+    description:
+      - an arbitrary rake command to be executed
+    required: yes
+    default: no
   executable:
     description:
       - Bundler executable
     required: no
     default: $GEM_HOME/bin/bundle
-  path:
-    description:
-      - path which should cd'd into to run commands
-    required: yes
   rails_env:
     description:
       - RAILS_ENV used by commands
@@ -31,11 +36,6 @@ options:
   force:
     description:
       - force command in question
-    required: no
-    default: no
-  command:
-    description:
-      - an arbitrary rake command to be executed
     required: no
     default: no
 '''
@@ -143,7 +143,6 @@ def main():
         argument_spec = dict(
             command        = dict(required=True, type='str'),
             path           = dict(required=True, type='str'),
-            current        = dict(required=False, type='str'),
             rails_env      = dict(required=False, type='str'),
             bundled        = dict(required=False, type='bool'),
             force          = dict(required=False, type='bool'),
