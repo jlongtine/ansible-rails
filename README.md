@@ -15,10 +15,6 @@ Ansible library to work with bundler and rails related commands.
       description:
         - path which should cd'd into to run commands
       required: yes
-    - current:
-      description:
-        - path of current version. used to decide if migrations and precompilations are necessary
-      required: no
     - rails_env:
       description:
         - RAILS_ENV used by commands
@@ -46,7 +42,6 @@ Ansible library to work with bundler and rails related commands.
 
 **examples**
 
-
     # run rake db:migrate
     rake: path=/path rails_env=staging command="db:migrate"
 
@@ -66,6 +61,8 @@ Ansible library to work with bundler and rails related commands.
 
     # run bundle exec rake my:custom:command
     rake: path=/path rails_env=staging bundled=yes command="my:custom:command"
+
+See [ansible-rails-deployment][1] for more usage examples.
 
 ### Tests
 
@@ -119,3 +116,5 @@ To execute tests for the `rake` command run the following in the project directo
 To execute tests for the `bundle` command run the following in the project directory:
 
     PYTHONPATH=$PWD/library python test/bundle_test.py
+
+[1]:https://github.com/nicolai86/ansible-rails-deployment

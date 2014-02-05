@@ -95,12 +95,6 @@ class BaseModule(object):
         except subprocess.CalledProcessError, error:
           return os.path.exists(path_a) or os.path.exists(path_b)
 
-    def copy(self, from_path, to_path):
-        """move files or directories from_path to to_path"""
-        copy_cmd = ['cp', '-R', from_path, to_path]
-        proc = subprocess.Popen(copy_cmd, stdout=subprocess.PIPE)
-        proc.communicate()
-
 class RakeModule(BaseModule):
     def get_rake_path(self):
         """locate the rake binary"""
@@ -149,6 +143,7 @@ def main():
         argument_spec = dict(
             command        = dict(required=True, type='str'),
             path           = dict(required=True, type='str'),
+            current        = dict(required=False, type='str'),
             rails_env      = dict(required=False, type='str'),
             bundled        = dict(required=False, type='bool'),
             force          = dict(required=False, type='bool'),
@@ -162,7 +157,8 @@ def main():
 
     changed = False
     if module.params.get('command', None):
-        changed = changed or rake_module.run_command(module.params['command'])
+        command = module.params['command']
+        changed = changed or rake_module.run_command(command)
 
     result = {}
     result['changed'] = changed
