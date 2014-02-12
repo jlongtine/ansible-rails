@@ -42,12 +42,11 @@ EXAMPLES = '''
 - bundle: path=shared/vendor deployment=yes
 '''
 
+
 import re
 import os
 import sys
 import subprocess
-
-from ansible.module_utils.basic import *
 
 class BundlerModule(object):
     module = None

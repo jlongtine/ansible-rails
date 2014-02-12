@@ -7,8 +7,6 @@ import sys
 import unittest
 from mock import Mock
 
-from ansible.module_utils.basic import AnsibleModule
-
 import imp
 imp.load_source('rake', os.path.join(os.path.dirname(__file__), os.path.pardir, 'library','rake'))
 
