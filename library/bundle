@@ -102,7 +102,7 @@ class BundlerModule(object):
 
     def run_bundle(self):
         if self.module.check_mode:
-            return False
+            return False, '', ''
 
         cmd = self.get_bundle_path() + ' install --without=deployment:test'
         if self.module.params.get('path', None):
@@ -116,7 +116,7 @@ class BundlerModule(object):
 
         (rc, stdout, stderr) = self.module.run_command(cmd, check_rc=True)
 
-        return self.gems_were_changed(stdout)
+        return self.gems_were_changed(stdout), stdout, stderr
 
 def main():
     module = AnsibleModule(
@@ -132,12 +132,14 @@ def main():
     )
 
     bundler = BundlerModule(module)
-    changed = bundler.run_bundle()
+    changed, stdout, stderr = bundler.run_bundle()
 
     result = {}
     result['path'] = module.params['path']
     result['executable'] = module.params['executable']
     result['changed'] = changed
+    result['stdout'] = stdout
+    result['stderr'] = stderr
 
     module.exit_json(**result)
 

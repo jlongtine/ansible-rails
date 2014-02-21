@@ -8,3 +8,7 @@
     binstubs: yes
     gemfile: /tmp/dummy/Gemfile
     path: /tmp/dummy/vendor/bundle
+  register: bundled
+
+- debug:
+    msg: "{{ bundled }}"
