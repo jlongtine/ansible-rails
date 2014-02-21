@@ -36,8 +36,7 @@ class TestBase(unittest.TestCase):
     # missing_db folder does not exist
     assert rake.diff('test/fixtures/missing_db', 'test/fixtures/next_db') == True
 
-    # if no path exists there's no diff
-    assert rake.diff('test/fixtures/missing_db', 'test/fixtures/missing_db') == False
+    assert rake.diff('test/fixtures/missing_db', 'test/fixtures/missing_db') == True
 
 class TestRake(unittest.TestCase):
   def test_get_rake_path(self):
@@ -57,7 +56,7 @@ class TestRake(unittest.TestCase):
       'current': 'test/fixtures/current_db',
       'next': 'text/fixtures/next_db'
     }]
-    module.run_command = Mock()
+    module.run_command = Mock(return_value=(True,'',''))
 
     rake = RakeModule(module)
     rake.run_command('db:migrate')
@@ -71,7 +70,7 @@ class TestRake(unittest.TestCase):
       'current': 'test/fixtures/current_db',
       'next': 'text/fixtures/changed_db'
     }]
-    module.run_command = Mock()
+    module.run_command = Mock(return_value=(True,'',''))
 
     rake = RakeModule(module)
     rake.run_command('db:migrate')
