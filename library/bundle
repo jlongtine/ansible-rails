@@ -57,7 +57,7 @@ class BundlerModule(object):
         home_path = os.getenv('HOME')
         env_command = ['/bin/bash', '-c', 'source ' + home_path + '/.bashrc && env']
 
-        proc = subprocess.Popen(env_command, stdout = subprocess.PIPE, shell = True)
+        proc = subprocess.Popen(env_command, stdout = subprocess.PIPE)
         env = {}
         for line in proc.stdout:
           (key, _, value) = line.decode("utf-8").strip().partition("=")

@@ -116,8 +116,10 @@ class RakeModule(BaseModule):
         force = self.module.params.get('force', False)
         if not force:
            has_diffs = False
-           for path in self.module.params.get('diff_paths', []):
-               has_diffs = has_diffs or self.diff(path['current'], path['next'])
+           diff_paths = self.module.params.get('diff_paths', [])
+           if diff_paths != None and len(diff_paths) > 0:
+             for path in diff_paths:
+                 has_diffs = has_diffs or self.diff(path['current'], path['next'])
 
            if not has_diffs:
                return False
