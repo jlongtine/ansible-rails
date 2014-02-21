@@ -73,7 +73,7 @@ class BundlerModule(object):
         else:
             extra_paths = []
 
-            gem_home = self.load_env()['GEM_HOME']
+            gem_home = self.load_env().get('GEM_HOME')
             if gem_home:
                 extra_paths.append(gem_home + '/bin')
 
@@ -124,14 +124,14 @@ class BundlerModule(object):
 def main():
     module = AnsibleModule(
         argument_spec = dict(
-            path           = dict(required=True, type='str'),
-            executable     = dict(required=False, type='str'),
-            gemfile        = dict(required=True, type='str'),
-            deployment     = dict(required=False, type='bool'),
-            binstubs       = dict(required=False, type='bool'),
+            path             = dict(required=True, type='str'),
+            executable       = dict(required=False, type='str'),
+            gemfile          = dict(required=True, type='str'),
+            deployment       = dict(required=False, type='bool'),
+            binstubs         = dict(required=False, type='bool'),
         ),
         supports_check_mode = True,
-        mutually_exclusive = [ ],
+        mutually_exclusive = [],
     )
 
     bundler = BundlerModule(module)
