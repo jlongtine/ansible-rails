@@ -104,18 +104,16 @@ class BundlerModule(object):
         if self.module.check_mode:
             return False
 
-        cmd = [ self.get_bundle_path() ]
 
-        cmd.append('install')
-        cmd.append('--without=deployment:test')
+        cmd = self.get_bundle_path() + ' install --without=deployment:test'
         if self.module.params.get('path', None):
-            cmd.append('--path=' + self.module.params.get('path'))
+            cmd = cmd + ' --path=' + self.module.params.get('path')
         if self.module.params.get('gemfile', None):
-            cmd.append('--gemfile=' + self.module.params.get('gemfile'))
+            cmd = cmd + ' --gemfile=' + self.module.params.get('gemfile')
         if self.module.params.get('binstubs', None):
-            cmd.append('--binstubs=bin/')
+            cmd = cmd + ' --binstubs=bin/'
         if self.module.params.get('deployment', None):
-            cmd.append('--deployment')
+            cmd = cmd + ' --deployment'
 
         (rc, stdout, stderr) = self.module.run_command(cmd, check_rc=True)
 
