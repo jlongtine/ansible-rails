@@ -1,0 +1,14 @@
+---
+- file:
+    path: /tmp/dummy/vendor/bundle
+    state: directory
+    mode: 0744
+    recurse: yes
+
+- copy:
+    src: $item
+    dest: /tmp/dummy
+  with_items:
+    - Gemfile
+    - Gemfile.lock
+    - hi.rb

@@ -1,0 +1,15 @@
+---
+- name: prepare .bashrc
+  lineinfile:
+    dest: "/root/.bashrc"
+    insertafter: BOF
+    regexp: ^source.+rvm
+    line: "source /etc/profile.d/rvm.sh"
+    state: present
+
+- name: execute bundle
+  bundle:
+    deployment: yes
+    binstubs: yes
+    gemfile: /tmp/dummy/Gemfile
+    path: /tmp/dummy/vendor/bundle

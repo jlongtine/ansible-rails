@@ -1,0 +1,10 @@
+---
+- hosts: vm
+  remote_user: vagrant
+  sudo: true
+  vars:
+    home_directory: "/root"
+  roles:
+    - rvm
+    - prepare-dummy
+    - bundle

@@ -1,0 +1,15 @@
+---
+- stat: path=/etc/profile.d/rvm.sh
+  register: rvm_folder
+
+- name: install rvm
+  shell: "curl -sSL https://get.rvm.io | bash"
+  when: rvm_folder.stat.isdir is not defined
+
+- command: '/usr/local/rvm/bin/rvm list rubies'
+  register: rubies
+  changed_when: false
+
+- name: install ruby 2.1.0
+  shell: "/usr/local/rvm/bin/rvm install 2.1.0"
+  when: rubies.stdout.find('2.1.0') == -1
