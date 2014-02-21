@@ -122,18 +122,16 @@ class RakeModule(BaseModule):
            if not has_diffs:
                return False
 
-        cmd = []
+        cmd = ''
         if self.module.params.get('rails_env', None):
             os.environ['RAILS_ENV'] = self.module.params.get('rails_env')
 
         if self.module.params.get('bundled', None):
-            cmd.append(self.get_bundle_path())
-            cmd.append('exec')
-            cmd.append('rake')
+            cmd = self.get_bundle_path() + ' exec rake'
         else:
-            cmd.append(self.get_rake_path())
+            cmd = self.get_rake_path()
 
-        cmd.append(command)
+        cmd = "{0} {1}".format(cmd, command)
 
         self.module.run_command(cmd, check_rc=True)
         return True

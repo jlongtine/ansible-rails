@@ -57,7 +57,7 @@ class BundlerModule(object):
         home_path = os.getenv('HOME')
         env_command = ['/bin/bash', '-c', 'source ' + home_path + '/.bashrc && env']
 
-        proc = subprocess.Popen(env_command, stdout = subprocess.PIPE)
+        proc = subprocess.Popen(env_command, stdout = subprocess.PIPE, shell = True)
         env = {}
         for line in proc.stdout:
           (key, _, value) = line.decode("utf-8").strip().partition("=")
@@ -103,7 +103,6 @@ class BundlerModule(object):
     def run_bundle(self):
         if self.module.check_mode:
             return False
-
 
         cmd = self.get_bundle_path() + ' install --without=deployment:test'
         if self.module.params.get('path', None):

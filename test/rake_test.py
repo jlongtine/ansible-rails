@@ -75,7 +75,7 @@ class TestRake(unittest.TestCase):
 
     rake = RakeModule(module)
     rake.run_command('db:migrate')
-    module.run_command.assert_called_with(['/bin/rake', 'db:migrate'], check_rc=True)
+    module.run_command.assert_called_with('/bin/rake db:migrate', check_rc=True)
 
 
 if __name__ == '__main__':
