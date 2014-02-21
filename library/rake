@@ -62,9 +62,6 @@ class BaseModule(object):
     def load_env(self):
         """load the environment from a users bashrc. Usefull to pick up custom $PATH"""
         home_path = os.getenv('HOME')
-        if not os.path.exists(home_path + '/.bashrc'):
-            return {}
-
         env_command = ['/bin/bash', '-c', 'source ' + home_path + '/.bashrc && env']
 
         proc = subprocess.Popen(env_command, stdout = subprocess.PIPE)
@@ -93,23 +90,27 @@ class BaseModule(object):
           check_output(['diff', '-r', '-q', path_a, path_b])
           return False
         except subprocess.CalledProcessError, error:
-          return os.path.exists(path_a) or os.path.exists(path_b)
+          # when a file/ dir is missing - diff!
+          return True
 
 class RakeModule(BaseModule):
     def get_rake_path(self):
         """locate the rake binary"""
-        extra_paths = []
+        if self.module.params.get('executable', None):
+            return self.module.params['executable']
+        else:
+            extra_paths = []
 
-        gem_home = self.load_env().get('GEM_HOME', None)
-        if gem_home:
-            extra_paths.append(gem_home + '/bin')
+            gem_home = self.load_env().get('GEM_HOME')
+            if gem_home:
+                extra_paths.append(gem_home + '/bin')
 
-        return self.module.get_bin_path('rake', True, extra_paths)
+            return self.module.get_bin_path('rake', True, extra_paths)
 
     def run_command(self, command):
         """run artibrary rake command"""
         if self.module.check_mode:
-            return False
+            return { 'changed': False, 'check_mode': true }
 
         os.chdir(self.module.params['path'])
 
@@ -121,8 +122,8 @@ class RakeModule(BaseModule):
              for path in diff_paths:
                  has_diffs = has_diffs or self.diff(path['current'], path['next'])
 
-           if not has_diffs:
-               return False
+             if not has_diffs:
+                 return { 'changed': False, 'has_diffs': False }
 
         cmd = ''
         if self.module.params.get('rails_env', None):
@@ -135,13 +136,14 @@ class RakeModule(BaseModule):
 
         cmd = "{0} {1}".format(cmd, command)
 
-        self.module.run_command(cmd, check_rc=True)
-        return True
+        rc, stdout, stderr = self.module.run_command(cmd, check_rc=True)
+        return { 'changed': True, 'stdout': stdout, 'stderr': stderr, 'rc': rc, 'command': cmd, 'has_diffs': True }
 
 def main():
     module = AnsibleModule(
         argument_spec = dict(
             command        = dict(required=True, type='str'),
+            executable     = dict(required=False, type='str'),
             path           = dict(required=True, type='str'),
             rails_env      = dict(required=False, type='str'),
             bundled        = dict(required=False, type='bool'),
@@ -154,13 +156,10 @@ def main():
 
     rake_module = RakeModule(module)
 
-    changed = False
+    result = {}
     if module.params.get('command', None):
         command = module.params['command']
-        changed = changed or rake_module.run_command(command)
-
-    result = {}
-    result['changed'] = changed
+        result = rake_module.run_command(command)
 
     module.exit_json(**result)
 

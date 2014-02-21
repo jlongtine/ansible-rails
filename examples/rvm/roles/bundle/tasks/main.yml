@@ -1,7 +1,20 @@
 ---
+- name: install bundler
+  shell: gem install bundler
+
 - name: execute bundle
   bundle:
     deployment: yes
     binstubs: yes
     gemfile: /tmp/dummy/Gemfile
     path: /tmp/dummy/vendor/bundle
+
+- name: execute rake
+  rake:
+    path: /tmp/dummy
+    bundled: yes
+    command: say_hello
+  register: message
+
+- debug:
+    msg: "{{ message }}"

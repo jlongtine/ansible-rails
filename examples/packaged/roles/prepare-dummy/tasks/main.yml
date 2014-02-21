@@ -12,3 +12,4 @@
     - Gemfile
     - Gemfile.lock
     - hi.rb
+    - Rakefile

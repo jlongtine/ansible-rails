@@ -68,7 +68,7 @@ class BundlerModule(object):
         return dict(env)
 
     def get_bundle_path(self):
-        if self.module.params['executable']:
+        if self.module.params.get('executable', None):
             return self.module.params['executable']
         else:
             extra_paths = []

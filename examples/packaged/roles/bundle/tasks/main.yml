@@ -8,3 +8,13 @@
     binstubs: yes
     gemfile: /tmp/dummy/Gemfile
     path: /tmp/dummy/vendor/bundle
+
+- name: execute rake
+  rake:
+    path: /tmp/dummy
+    bundled: yes
+    command: say_hello
+  register: bundled_message
+
+- debug:
+    msg: "{{ bundled_message }}"
