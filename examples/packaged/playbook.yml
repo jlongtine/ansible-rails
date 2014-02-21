@@ -1,0 +1,8 @@
+---
+- hosts: vm
+  remote_user: vagrant
+  sudo: true
+  roles:
+    - install-ruby
+    - prepare-dummy
+    - bundle

@@ -1,4 +1,7 @@
 ---
+- name: install bundler
+  shell: gem install bundler
+
 - name: execute bundle
   bundle:
     deployment: yes

@@ -13,3 +13,6 @@
 - name: install ruby 2.1.0
   shell: "/usr/local/rvm/bin/rvm install 2.1.0"
   when: rubies.stdout.find('2.1.0') == -1
+
+- name: install bundler
+  shell: gem install bundler
