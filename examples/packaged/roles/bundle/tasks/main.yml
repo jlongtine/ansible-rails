@@ -8,26 +8,3 @@
     binstubs: yes
     gemfile: /tmp/dummy/Gemfile
     path: /tmp/dummy/vendor/bundle
-
-# rake is bundled in the sample application
-- name: execute rake
-  rake:
-    path: /tmp/dummy
-    bundled: yes
-    command: say_hello
-  register: message_with_bundle
-
-- debug:
-    msg: "{{ message_with_bundle.command }}: {{ message_with_bundle.stdout }}"
-
-# lets use global rake!
-- shell: gem install rake
-
-- name: execute rake
-  rake:
-    path: /tmp/dummy
-    command: say_hello
-  register: message_with_executable
-
-- debug:
-    msg: "{{ message_with_executable.command }}: {{ message_with_executable.stdout }}"

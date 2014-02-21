@@ -6,3 +6,4 @@
     - install-ruby
     - prepare-dummy
     - bundle
+    - rake

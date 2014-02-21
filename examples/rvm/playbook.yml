@@ -6,3 +6,4 @@
     - rvm
     - prepare-dummy
     - bundle
+    - rake
