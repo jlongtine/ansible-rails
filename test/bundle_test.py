@@ -27,7 +27,7 @@ class TestBundle(unittest.TestCase):
     bundler.get_bundle_path = Mock(return_value='/bin/bandler')
     bundler.run_bundle()
 
-    module.run_command.assert_called_with(['/bin/bandler', 'install', '--without=deployment:test', '--path=/path/to/app'], check_rc=True)
+    module.run_command.assert_called_with('/bin/bandler install --without=deployment:test --path=/path/to/app', check_rc=True)
 
   def test_run_bundler_with_gemfile_option(self):
     module = FakeAnsibleModule()
@@ -38,7 +38,7 @@ class TestBundle(unittest.TestCase):
     bundler.get_bundle_path = Mock(return_value='/bin/bandler')
     bundler.run_bundle()
 
-    module.run_command.assert_called_with(['/bin/bandler', 'install', '--without=deployment:test', '--gemfile=/path/to/Gemfile'], check_rc=True)
+    module.run_command.assert_called_with('/bin/bandler install --without=deployment:test --gemfile=/path/to/Gemfile', check_rc=True)
 
   def test_run_bundler_with_binstubs_option(self):
     module = FakeAnsibleModule()
@@ -49,7 +49,7 @@ class TestBundle(unittest.TestCase):
     bundler.get_bundle_path = Mock(return_value='/bin/bandler')
     bundler.run_bundle()
 
-    module.run_command.assert_called_with(['/bin/bandler', 'install', '--without=deployment:test', '--binstubs=bin/'], check_rc=True)
+    module.run_command.assert_called_with('/bin/bandler install --without=deployment:test --binstubs=bin/', check_rc=True)
 
   def test_run_bundler_with_deployment_option(self):
     module = FakeAnsibleModule()
@@ -60,7 +60,7 @@ class TestBundle(unittest.TestCase):
     bundler.get_bundle_path = Mock(return_value='/bin/bandler')
     bundler.run_bundle()
 
-    module.run_command.assert_called_with(['/bin/bandler', 'install', '--without=deployment:test', '--deployment'], check_rc=True)
+    module.run_command.assert_called_with('/bin/bandler install --without=deployment:test --deployment', check_rc=True)
 
   """tests for resolving bundler binary. rely on AnsibleModule.get_bin_path
   when no executable is given
