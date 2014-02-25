@@ -41,11 +41,11 @@ options:
 '''
 
 EXAMPLES = '''
-# migrate the database
-rails: path=/path rails_env=staging migrate=yes bundled=yes
+# migrate database in a Rails project
+rake: path=/path rails_env=staging command="db:migrate"
 
-# compile the assets
-rails: path=/path rails_env=staging assets=yes bundled=yes
+# compile assets in a Rails project
+rake: path=/path rails_env=staging command="assets:precompile" bundled=yes
 '''
 
 import re
